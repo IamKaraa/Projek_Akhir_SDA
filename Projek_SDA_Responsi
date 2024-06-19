@@ -1,0 +1,92 @@
+import csv
+from queue import Queue
+import tkinter as tk
+from tkinter import messagebox, filedialog
+from tkinter import font as tkfont  
+
+class Data:
+    def __init__(self, id, uang, tanggal, deskripsi, jenis):
+        self.id = id
+        self.uang = uang
+        self.tanggal = tanggal
+        self.deskripsi = deskripsi
+        self.jenis = jenis
+
+    def __repr__(self):
+        if self.jenis == "masuk":
+            return f"{self.id}: Rp.{self.uang} || Tgl {self.tanggal} || Ket. {self.deskripsi}"
+        else:
+            return f"{self.id}: -Rp.{self.uang} || Tgl {self.tanggal} || Ket. {self.deskripsi}"
+
+class DataManager:
+    def __init__(self):
+        self.datas = []
+        self.counter = 1
+
+    def tambah_data(self, uang, tanggal, deskripsi, jenis):
+        new_data = Data(self.counter, uang, tanggal, deskripsi, jenis)
+        self.datas.append(new_data)
+        self.counter += 1
+        print(f"'{uang}' berhasil ditambahkan.")
+
+    def lihat_data(self):
+        for data in sorted(self.datas, key=lambda x: (x.tanggal)):
+            print(data)
+
+    def cari_data(self, keyword):
+        hasil = [
+            data for data in self.datas
+            if keyword.lower() in data.deskripsi.lower()
+        ]
+        return hasil
+
+    def impor_data_csv(self, filename):
+        try:
+            with open(filename, mode='r') as file:
+                csv_reader = csv.DictReader(file)
+                for row in csv_reader:
+                    # Determine jenis based on uang value
+                    jenis = "masuk" if int(row['uang']) > 0 else "keluar"
+                    # Pass the jenis argument to tambah_data
+                    self.tambah_data(abs(int(row['uang'])), row['tanggal'], row['deskripsi'], jenis)
+            print("Impor dari CSV berhasil.")
+        except Exception as e:
+            print(f"Error: {e}")
+
+# gui awal
+
+# gui awal
+
+def import_csv():
+        filename = filedialog.askopenfilename(title="Pilih file CSV", filetypes=(("CSV files", ".csv"), ("All files", ".*")))
+        if filename:
+            try:
+                with open(filename, mode='r') as file:
+                    csv_reader = csv.DictReader(file)
+                    for row in csv_reader:
+                        # Determine jenis based on uang value
+                        jenis = "masuk" if int(row['uang']) > 0 else "keluar"
+                        # Pass the jenis argument to tambah_data
+                        manager.tambah_data(int(row['uang']), row['tanggal'], row['deskripsi'], jenis)
+                messagebox.showinfo("Sukses", "Impor dari CSV berhasil!")
+                lihat_data()  # Refresh data list after import
+            except Exception as e:
+                messagebox.showerror("Error", str(e))
+
+    def export_csv():
+        filename = "transactions.csv"
+        fieldnames = ['tanggal', 'deskripsi', 'uang']
+
+        with open(filename, 'w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            for data in manager.datas:
+                writer.writerow({'tanggal': data.tanggal, 'deskripsi': data.deskripsi, 'uang': data.uang})
+
+        messagebox.showinfo("Sukses", "Expor ke CSV berhasil!")
+        lihat_data()  # Refresh data list after export
+
+#next
+
+
+#next
