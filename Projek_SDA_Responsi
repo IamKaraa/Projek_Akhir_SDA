@@ -107,6 +107,52 @@ def show_gui():
         except ValueError:
             messagebox.showerror("Error", "Pengeluaran harus berupa angka!")
 
+def update_pengeluaran():
+        pengeluaran_total = sum(int(data.uang) for data in manager.datas if int(data.uang) < 0)
+        output_pengeluaran.delete('1.0', tk.END)
+        output_pengeluaran.insert(tk.END, f"Rp.{pengeluaran_total}")
+
+    def update_total_uang():
+        total_uang = sum(int(data.uang) for data in manager.datas)
+        output_total_uang.delete('1.0', tk.END)
+        output_total_uang.insert(tk.END, f"Rp.{total_uang}")
+
+    def update_data_popup():
+        def update_data():
+            try:
+                id_data = int(entry_id_update.get())
+                uang = entry_uang_update.get()
+                tanggal = entry_tanggal_update.get()
+                deskripsi = entry_deskripsi_update.get()
+                manager.update_data(id_data, uang, tanggal, deskripsi)
+                messagebox.showinfo("Sukses", f"Data dengan ID {id_data} berhasil diupdate!")
+                lihat_data()  # Refresh data list after updating
+                update_window.destroy()  # Close the update window
+            except ValueError:
+                messagebox.showerror("Error", "ID Data harus berupa angka.")
+
+        update_window = tk.Toplevel(root)
+        update_window.title("Update Data")
+        update_window.configure(bg="#ededed")
+
+        tk.Label(update_window, text="Update Data (ID):", bg="#ededed", fg="#ffffff").grid(row=0, column=0, padx=5, pady=5)
+        entry_id_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
+        entry_id_update.grid(row=0, column=1, padx=5, pady=5)
+
+        tk.Label(update_window, text="Uang:", bg="#ededed", fg="#ffffff").grid(row=1, column=0, padx=5, pady=5)
+        entry_uang_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
+        entry_uang_update.grid(row=1, column=1, padx=5, pady=5)
+
+        tk.Label(update_window, text="Tanggal:", bg="#ededed", fg="#ffffff").grid(row=2, column=0, padx=5, pady=5)
+        entry_tanggal_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
+        entry_tanggal_update.grid(row=2, column=1, padx=5, pady=5)
+
+        tk.Label(update_window, text="Deskripsi:", bg="#ededed", fg="#ffffff").grid(row=4, column=0, padx=5, pady=5)
+        entry_deskripsi_update = tk.Entry(update_window, bg="#ffffff", fg="#000000")
+        entry_deskripsi_update.grid(row=4, column=1, padx=5, pady=5)
+
+        tk.Button(update_window, text="Update", command=update_data, bg="#9BFF54", fg="#ffffff").grid(row=5, column=1, padx=5, pady=5)
+
 def import_csv():
         filename = filedialog.askopenfilename(title="Pilih file CSV", filetypes=(("CSV files", ".csv"), ("All files", ".*")))
         if filename:
