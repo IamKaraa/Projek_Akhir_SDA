@@ -53,9 +53,59 @@ class DataManager:
         except Exception as e:
             print(f"Error: {e}")
 
-# gui awal
+def show_gui():
+    def tambah_data():
+        uang = entry_uang.get()
+        tanggal = entry_tanggal.get()
+        deskripsi = entry_deskripsi.get()
+        jenis = "masuk"  # Set the default jenis to "masuk"
+        if uang[0] == "-":  # If the first character of uang is "-", set jenis to "keluar"
+            uang = uang[1:]
+            jenis = "keluar"
 
-# gui awal
+        if uang and tanggal and deskripsi:
+            manager.tambah_data(uang, tanggal, deskripsi, jenis)
+            messagebox.showinfo("Sukses", "Data berhasil ditambahkan!")
+            lihat_data()  # Refresh data list after adding
+            update_total_uang()  # Update total uang
+        else:
+            messagebox.showwarning("Peringatan", "Semua kolom harus diisi!")
+
+    def lihat_data():
+        output_text.delete('1.0', tk.END)
+        datas = sorted(manager.datas, key=lambda x: (x.tanggal))
+        for data in datas:
+            output_text.insert(tk.END, f"{data}\n")
+
+    def cari_data():
+        keyword = entry_cari.get()
+        hasil = manager.cari_data(keyword)
+        output_text.delete('1.0', tk.END)
+        if hasil:
+            for data in hasil:
+                output_text.insert(tk.END, f"{data}\n")
+        else:
+            output_text.insert(tk.END, "Data tidak ditemukan.")
+
+    def hapus_data():
+        try:
+            pengeluaran = int(entry_hapus.get())
+            tanggal_pengeluaran = entry_tanggal_hapus.get()
+            deskripsi_pengeluaran = entry_deskripsi_hapus.get()
+            if pengeluaran > 0:
+                total_uang = sum(int(data.uang) for data in manager.datas)
+                if total_uang >= pengeluaran:
+                    manager.tambah_data(-pengeluaran, tanggal_pengeluaran, deskripsi_pengeluaran, "keluar")
+                    messagebox.showinfo("Sukses", f"Pengeluaran sebesar {pengeluaran} berhasil!")
+                    lihat_data()  # Refresh data list after deleting
+                    update_total_uang()  # Update total uang
+                    update_pengeluaran()  # Update pengeluaran output
+                else:
+                    messagebox.showerror("Error", "Pengeluaran melebihi total uang!")
+            else:
+                messagebox.showerror("Error", "Pengeluaran harus lebih besar dari 0!")
+        except ValueError:
+            messagebox.showerror("Error", "Pengeluaran harus berupa angka!")
 
 def import_csv():
         filename = filedialog.askopenfilename(title="Pilih file CSV", filetypes=(("CSV files", ".csv"), ("All files", ".*")))
